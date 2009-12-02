@@ -1,6 +1,10 @@
 #!/bin/sh
-# 
-# Last Updated: 11/30/2009
+##################################################################
+#      remotebashrc.sh
+#               Created by: Justyn Shull <justyn@justynshull.com>
+#	For Updates, visit: http://www.justynshull.com/projects/remotebashrc.html 
+#               Last Updated: 12/01/2009
+
 #put this in your ~/.ssh/config file
 #Host *
 #ControlMaster auto
