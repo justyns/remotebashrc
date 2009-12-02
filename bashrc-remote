@@ -1,45 +1,33 @@
-#some options
+#!/bin/bash
+##################################################################
+#	bashrc-remote for use with remotebashrc.sh
+#		Created by: Justyn Shull <justyn@justynshull.com>
+#
+#               Last Updated: 11/30/2009
+
+###############  Setup some enviroment variables and bash options
 shopt -s checkwinsize
 shopt -s histappend
-#define colors
-red="\[\033[01;31m\]";
-green="\[\033[01;32m\]";
-if [ -x /usr/local/bin/gnuls ];then
-  alias ls="gnuls --color=auto"
-  else
-  alias ls='ls --color=auto'
-fi
+#define some colors to make things pretty later
+red="\033[01;31m";
+green="\033[01;32m";
+
+############### Export the PS1 prompt style and PATH.   Display motd if it exists (for managed servers)
+export PS1="\[\033[01;32m\][\u@\h\[\033[01;34m\] \w ]$\[\033[00m\]"
+export PATH=$PATH:/usr/local/psa/admin/bin/
+[ -f /etc/motd ] && cat /etc/motd;
+
+############### Standard Aliases
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 alias ll='ls -l'
 alias grep='grep --color=auto'
 alias c='clear'
-#custom functions
-genpasswd() {
-	local l=$1
-       	[ "$l" == "" ] && l=20
-     	tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${l} | xargs
-}
-#A shell function using perl to easily convert Unix-time to text.
-utime(){ perl -e "print localtime($1).\"\n\"";}
-whatismyip(){ wget -q -O - checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'; }
-GeoipLookUp(){ curl -A "Mozilla/5.0" -s "http://www.geody.com/geoip.php?ip=$1" | grep "^IP.*$1" | html2text; }
-#this shows the top 10 processes using up the most cpu
-topproc10(){ ps -eo pcpu,pmem,user,pid,cmd | sort -r | head -10; }
-#this one shows the top 10 users's using up cpu and mem, along with how many processes they're running
-topproc10u() { ps -eo user,pcpu,pmem | tail -n +2 | awk '{num[$1]++; cpu[$1] += $2; mem[$1] += $3} END{printf("NPROC\tUSER\tCPU\tMEM\n"); for (user in cpu) printf("%d\t%s\t%.2f\t%.2f\n",num[user], user, cpu[user], mem[user]) }'; }
-#and a calculator!
-calc(){ awk "BEGIN{ print $* }" ;}
-#check to see the dates on a ssl cert
-function check_ssl_date() {
-	echo | openssl s_client -connect "${1}":443 2>/dev/null |openssl x509 -dates -noout
-}
-#time dns lookup and site download speed
-test_Site_speed() {
-	URL="${1}";
-	curl -L --w "$URL\nDNS %{time_namelookup}s conn %{time_connect}s time %{time_total}s\nSpeed %{speed_download}bps Size %{size_download}bytes\n" -o/dev/null -s $URL	
-}
+[ -x /usr/local/bin/gnuls ] && alias ls="gnuls --color=auto" || alias ls='ls --color=auto'
+
+############## Not so standard Aliases
+
 #pipe the output of a command to sprunge and it will give you a link to a paste-bin type page
 #add ?php or ?sh or etc to have it add line numbers and highlighting
 alias sprunge="curl -F 'sprunge=<-' http://sprunge.us"
@@ -47,32 +35,68 @@ alias sprunge="curl -F 'sprunge=<-' http://sprunge.us"
 alias scpresume='rsync --partial --progress --rsh=ssh'
 #makes a directory tree listing
 alias dirtree='find . -type d | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-\1/"'
-#alias I made actually.. Strips bash and php comments from a file
+#alias I made to strip comments from a bash or php script.   May need tweaked still
 alias stripcomments="sed -e '/^[[:blank:]]*#/d; s/[[:blank:]][[:blank:]]*#.*//'  -e '/^$/d' -e '/^\/\/.*/d' -e '/^\/\*/d;/^ \* /d;/^ \*\//d'"
-dh() { du -ch --max-depth=1 "${@-.}"|sort -h; }
-#show phpinfo.   phpinfo_e > info.php
+#phpinfo_e > info.php   (write a basic phpinfo() file for testing)
 alias phpinfo_e="echo <?php phpinfo(); ?>";
+#alias vim to vi if vim isn't installed
+[ ! -x /usr/bin/vim ] && alias vim="vi" && echo -e "$red vim is not installed.  aliasing vim to vi" || alias vi="vim";
 
-#Plesk stuff(if it has plesk)
+############## Plesk Aliases
+##	These will only get set if .psa.shadow exists on the system.   
 if [ -f /etc/psa/.psa.shadow ]
 then
-#assume this is a plesk machine
-	echo "$redpsa.shadow $greenfound.  Assuming plesk is installed";
-	alias plesk_pass="cat /etc/psa/.psa.shadow";
-	alias plesk_mailusers="mysql -uadmin -p`cat /etc/psa/.psa.shadow ` psa -e 'select m.mail_name,a.password,d.name from mail m,accounts a,domains d where m.account_id=a.id and m.dom_id=d.id;'";
-	alias plesk_ftpusers="mysql -uadmin -p`cat /etc/psa/.psa.shadow` -N psa -e 'select s.login,s.home,a.password from sys_users s,accounts a where s.account_id=a.id;'";
-	alias plesk_dbusers="mysql -u admin -p`cat /etc/psa/.psa.shadow` psa -e 'select u.login,a.password,b.name,d.name from db_users u,accounts a,data_bases b,domains d WHERE u.account_id=a.id AND u.db_id=b.id AND b.dom_id=d.id;'";
-	alias plesk_mysql="mysql -u admin -p`cat /etc/psa/.psa.shadow`";
-	alias plesk_regenhttpdconf="/usr/local/psa/admin/bin/websrvmng -av";
-	alias plesk_restartall="service psa stopall;service psa start";
+	#assume this is a plesk machine
+        echo -e "$red psa.shadow $green \e[m found.  Assuming plesk is installed";
+        alias plesk_pass="cat /etc/psa/.psa.shadow";
+        alias plesk_mailusers="mysql -uadmin -p`cat /etc/psa/.psa.shadow ` psa -e 'select m.mail_name,a.password,d.name from mail m,accounts a,domains d where m.account_id=a.id and m.dom_id=d.id;'";
+        alias plesk_ftpusers="mysql -uadmin -p`cat /etc/psa/.psa.shadow` -N psa -e 'select s.login,s.home,a.password from sys_users s,accounts a where s.account_id=a.id;'";
+        alias plesk_dbusers="mysql -u admin -p`cat /etc/psa/.psa.shadow` psa -e 'select u.login,a.password,b.name,d.name from db_users u,accounts a,data_bases b,domains d WHERE u.account_id=a.id AND u.db_id=b.id AND b.dom_id=d.id;'";
+	alias plesk_clients="mysql -u admin -p`cat /etc/psa/.psa.shadow` psa -e 'select s.login,a.password from clients s,accounts a where s.account_id=a.id;'";
+        alias plesk_mysql="mysql -u admin -p`cat /etc/psa/.psa.shadow`";
+        alias plesk_regenhttpdconf="/usr/local/psa/admin/bin/websrvmng -av";
+        alias plesk_restartall="service psa stopall;service psa start";
+else
+	echo -e "$red psa.shadow not found.\e[m";
 fi
-alias netstat_connbyip="netstat -nat | grep ":80" | awk -F: '{print $8}' | sort | uniq -c | sort -n";
-alias netstat_ips20conn="netstat -nat | grep ":80" | awk -F: '{print $8}' | sort | uniq -c | sort -n | awk '{ if ( $1 > 20 ) print $2 ; }'";
-[ ! -f /usr/bin/fvim ] && alias vim="vi" && echo "$redvim is not installed.  aliasing vim to vi" || alias vi="vim";
-if [ -f /etc/motd ]
-then
-#display motd in case its a managed server
-	cat /etc/motd;
-fi
-export PS1="\[\033[01;32m\][\u@\h\[\033[01;34m\] \w ]$\[\033[00m\]"
-export PATH=$PATH:/usr/local/psa/admin/bin/
+
+############# Custom functions and commands
+genpasswd() {
+        local l=$1
+        [ "$l" == "" ] && l=20
+        tr -dc A-Za-z0-9_ < /dev/urandom | head -c ${l} | xargs
+}
+#utime converts unix-time to ..normal time
+utime(){ perl -e "print localtime($1).\"\n\"";}
+whatismyip(){ wget -q -O - checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'; }
+#display top 10 cpu-using processes, and top 10 cpu-using users
+topproc10(){ ps -eo pcpu,pmem,user,pid,cmd | sort -r | head -10; }
+topproc10u() { ps -eo user,pcpu,pmem | tail -n +2 | awk '{num[$1]++; cpu[$1] += $2; mem[$1] += $3} END{printf("NPROC\tUSER\tCPU\tMEM\n"); for (user in cpu) printf("%d\t%s\t%.2f\t%.2f\n",num[user], user, cpu[user], mem[user]) }'; }
+#test_site_speed times how long it takes to do a dns lookup and download a website
+test_Site_speed() {
+        URL="${1}";
+        curl -L --w "$URL\nDNS %{time_namelookup}s conn %{time_connect}s time %{time_total}s\nSpeed %{speed_download}bps Size %{size_download}bytes\n" -o/dev/null -s $URL
+}
+#misc functions. should be self-explanitory
+calc(){ awk "BEGIN{ print $* }" ;}
+function check_ssl_date() { echo | openssl s_client -connect "${1}":443 2>/dev/null |openssl x509 -dates -noout; }
+dh() { du -ch --max-depth=1 "${@-.}"|sort -h; }
+##### new netstat2 function.   Does some neat stuff with netstat
+function netstat2() {
+	case "$1" in
+
+	"ipcount"  )
+		netstat -nat | grep ":80" | awk -F: '{print $8}' | sort | uniq -c | sort -n;;
+	"top20" )
+		netstat -nat | grep ":80" | awk -F: '{print $8}' | sort | uniq -c | sort -n | awk '{ if ( $1 > 20 ) print $2 ; }';;
+	* )
+		echo "Run netstat2 with one of these commands:"
+		echo "ipcount: lists all of the ips connected to the server sorted by the number of connections they have open"
+		echo "top20: Same as above but only lists the top 20 and does not display the number of connections open per ip"
+	;;
+	esac;
+}
+
+#Switch -vi to -fv if you don't want to be prompted to delete this file(potentially unsafe?)
+#$BASH_SOURCE works but $0 won't work if you run 'source /tmp/bashrc'
+rm -vi "$BASH_SOURCE";
