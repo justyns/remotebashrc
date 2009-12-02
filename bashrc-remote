@@ -38,9 +38,9 @@ alias dirtree='find . -type d | sed -e "s/[^-][^\/]*\//  |/g" -e "s/|\([^ ]\)/|-
 #alias I made to strip comments from a bash or php script.   May need tweaked still
 alias stripcomments="sed -e '/^[[:blank:]]*#/d; s/[[:blank:]][[:blank:]]*#.*//'  -e '/^$/d' -e '/^\/\/.*/d' -e '/^\/\*/d;/^ \* /d;/^ \*\//d'"
 #phpinfo_e > info.php   (write a basic phpinfo() file for testing)
-alias phpinfo_e="echo <?php phpinfo(); ?>";
+alias phpinfo_e="echo '<?php phpinfo(); ?>'";
 #alias vim to vi if vim isn't installed
-[ ! -x /usr/bin/vim ] && alias vim="vi" && echo -e "$red vim is not installed.  aliasing vim to vi" || alias vi="vim";
+[ ! -x /usr/bin/vim ] && alias vim="vi" && echo -e "$red vim is not installed.\e[m  aliasing vim to vi" || alias vi="vim";
 
 ############## Plesk Aliases
 ##	These will only get set if .psa.shadow exists on the system.   
