@@ -24,6 +24,7 @@ genpasswd() {
 #A shell function using perl to easily convert Unix-time to text.
 utime(){ perl -e "print localtime($1).\"\n\"";}
 whatismyip(){ wget -q -O - checkip.dyndns.org|sed -e 's/.*Current IP Address: //' -e 's/<.*$//'; }
+GeoipLookUp(){ curl -A "Mozilla/5.0" -s "http://www.geody.com/geoip.php?ip=$1" | grep "^IP.*$1" | html2text; }
 #this shows the top 10 processes using up the most cpu
 topproc10(){ ps -eo pcpu,pmem,user,pid,cmd | sort -r | head -10; }
 #this one shows the top 10 users's using up cpu and mem, along with how many processes they're running
