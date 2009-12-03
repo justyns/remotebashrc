@@ -18,8 +18,10 @@ red="\033[01;31m";
 green="\033[01;32m";
 
 ############### Export the PS1 prompt style and PATH.   Display motd if it exists (for managed servers)
-export PS1="\[\033[01;32m\][\u@\h\[\033[01;34m\] \w ]$\[\033[00m\]"
-export PATH=$PATH:/usr/local/psa/admin/bin/
+#export PS1="\[\033[01;32m\][\u@\h\[\033[01;34m\] \w ]$\[\033[00m\]"
+[ ${UID} -eq 0 ] && PROMPT_COLOR="\[\033[01;31m\]" || PROMPT_COLOR="\[\033[01;32m\]"
+export PS1="$PROMPT_COLOR\h\[\033[01;34m\] \W \$ \[\033[00m\]"
+export PATH="$PATH:/usr/local/psa/admin/bin/:/sbin/:/usr/sbin/"
 [ -f /etc/motd ] && cat /etc/motd;
 
 ############### Standard-ish Aliases
