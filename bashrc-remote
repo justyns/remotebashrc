@@ -3,9 +3,14 @@
 #	bashrc-remote for use with remotebashrc.sh
 #		Created by: Justyn Shull <justyn@justynshull.com>
 #
-#               Last Updated: 11/30/2009
+#               Last Updated: 12/02/2009
+#
+#     If you see this file in your /tmp folder, don't worry. It's safe
+#      visit http://www.justynshull.com/project/remotebashrc.html for info
 
 ###############  Setup some enviroment variables and bash options
+#source server bashrc before anything else
+[ -f ~/.bashrc ] && source ~/.bashrc
 shopt -s checkwinsize
 shopt -s histappend
 #define some colors to make things pretty later
@@ -17,11 +22,16 @@ export PS1="\[\033[01;32m\][\u@\h\[\033[01;34m\] \w ]$\[\033[00m\]"
 export PATH=$PATH:/usr/local/psa/admin/bin/
 [ -f /etc/motd ] && cat /etc/motd;
 
-############### Standard Aliases
+############### Standard-ish Aliases
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
 alias ll='ls -l'
+alias lla='ls -la'
+alias llah='ls -lah'
+alias :q='exit'
+alias :wq='exit'
+alias :q!='kill -9 $$'
 alias grep='grep --color=auto'
 alias c='clear'
 [ -x /usr/local/bin/gnuls ] && alias ls="gnuls --color=auto" || alias ls='ls --color=auto'
@@ -97,6 +107,12 @@ function netstat2() {
 	esac;
 }
 
+##############  Some useful things to know about the server when first connecting to it
+echo -e "$green Uptime: $red `uptime` \e[m"
+echo -e "$green Total procs: $red `ps aux | wc -l` \e[m"
+services="httpd mysqld apache2 proftpd qmail-send master sendmail"
+echo -ne "$green Services: \e[m";for serv in $services; do [ ! "$(pidof $serv)" ] && echo -ne "$serv:$red Off\e[m " || echo -ne "$serv:$green On\e[m "; done;echo ""
+
 #Switch -vi to -fv if you don't want to be prompted to delete this file(potentially unsafe?)
 #$BASH_SOURCE works but $0 won't work if you run 'source /tmp/bashrc'
-rm -vi "$BASH_SOURCE";
+#rm -vi "$BASH_SOURCE";
