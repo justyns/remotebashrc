@@ -115,4 +115,4 @@ echo -ne "$green Services: \e[m";for serv in $services; do [ ! "$(pidof $serv)" 
 
 #Switch -vi to -fv if you don't want to be prompted to delete this file(potentially unsafe?)
 #$BASH_SOURCE works but $0 won't work if you run 'source /tmp/bashrc'
-#rm -vi "$BASH_SOURCE";
+rm -vi "$BASH_SOURCE";
