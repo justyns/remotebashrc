@@ -30,7 +30,7 @@
 [ $# = 0 ] && { sed -n -e '/^# Usage:/,/^$/ s/^# \?//p' < $0; exit; }
 beclean=0 #1 = don't automatically source the bashrc-remote, but still upload it.  0 = upload and use --rcfile to source it(looks bad in top/ps)
 debug=1
-bashrc_remote=~/bashrc-remote
+bashrc_remote=`dirname $(readlink -f $0)`/bashrc-remote
 random_file=/tmp/rshrc-`date +%d%m%g%H%M%S`.$RANDOM 
 #random_file=`mktemp -t remoteshrc`;
 ruser=$1
