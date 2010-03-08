@@ -9,6 +9,7 @@
 #      visit http://www.justynshull.com/project/remotebashrc.html for info
 
 ###############  Setup some enviroment variables and bash options
+#Test..
 #source server bashrc before anything else
 [ -f ~/.bashrc ] && source ~/.bashrc
 shopt -s checkwinsize
