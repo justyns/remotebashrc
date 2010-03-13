@@ -25,6 +25,7 @@
 #### 
 
 ##TODO
+# get this script converted from svn to git and working
 # random_file doesn't always work.   $RANDOM returns nothing some times. 
 # check to see if it's a freebsd box before trying to ssh in..  /bin/bash doesn't seem to be installed by default
 [ $# = 0 ] && { sed -n -e '/^# Usage:/,/^$/ s/^# \?//p' < $0; exit; }
